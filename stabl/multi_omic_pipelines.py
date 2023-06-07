@@ -12,11 +12,12 @@ from sklearn.feature_selection import VarianceThreshold
 from sklearn.model_selection import RepeatedKFold, RepeatedStratifiedKFold, LeaveOneOut
 from sklearn.svm import l1_min_c
 
-from sklearn.utils.validation import check_is_fitted
-from sklearn.linear_model import Lasso
-from sklearn.model_selection import GroupShuffleSplit
-from sklearn.metrics import roc_auc_score, average_precision_score, r2_score, mean_squared_error, mean_absolute_error
-from scipy.stats import mannwhitneyu
+# Imported libraries for Tests in Josh Pipeline
+# from sklearn.utils.validation import check_is_fitted
+# from sklearn.linear_model import Lasso
+# from sklearn.model_selection import GroupShuffleSplit
+# from sklearn.metrics import roc_auc_score, average_precision_score, r2_score, mean_squared_error, mean_absolute_error
+# from scipy.stats import mannwhitneyu
 
 from .stabl import Stabl, plot_stabl_path, plot_fdr_graph, save_stabl_results
 from .pipelines_utils import compute_scores_table, save_plots
@@ -36,7 +37,7 @@ logit_lasso_cv = LogisticRegressionCV(penalty="l1", solver="liblinear", Cs=np.lo
 logit = LogisticRegression(penalty=None, class_weight="balanced", max_iter=int(1e6))
 linreg = LinearRegression()
 
-preprocessing = Pipeline(
+default_preprocessing = Pipeline(
     steps=[
         ("variance", VarianceThreshold(0.01)),
         ("lif", LowInfoFilter()),
@@ -54,7 +55,8 @@ def multi_omic_stabl_cv(
         stability_selection,
         task_type,
         save_path,
-        outer_groups=None
+        outer_groups=None,
+        preprocessing=default_preprocessing
 ):
     """
 
@@ -288,7 +290,8 @@ def multi_omic_stabl(
         task_type,
         save_path,
         X_test=None,
-        y_test=None
+        y_test=None,
+        preprocessing=default_preprocessing
 ):
     """
 
@@ -459,7 +462,13 @@ def multi_omic_stabl(
     return predictions_dict
 
 
-def late_fusion_lasso_cv(train_data_dict, y, outer_splitter, task_type, save_path, groups=None):
+def late_fusion_lasso_cv(train_data_dict, 
+                         y, 
+                         outer_splitter, 
+                         task_type, 
+                         save_path, 
+                         groups=None,
+                         preprocessing=default_preprocessing):
 
     predictions_dict = {model: pd.DataFrame(data=None, index=y.index) for model in train_data_dict.keys()}
     omics_selected_features = {model: [] for model in train_data_dict.keys()}
@@ -545,7 +554,8 @@ def multi_omic_stabl_cv_josh(
         stability_selection,
         task_type,
         save_path,
-        outer_groups=None):
+        outer_groups=None,
+        preprocessing=default_preprocessing):
     """
 
     Parameters

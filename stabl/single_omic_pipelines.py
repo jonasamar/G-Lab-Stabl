@@ -9,7 +9,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LassoCV, LogisticRegressionCV, LogisticRegression, LinearRegression, ElasticNetCV,\
     Lasso
 from sklearn.base import clone
-from sklearn.model_selection import RepeatedStratifiedKFold, RepeatedKFold
+from sklearn.model_selection import RepeatedStratifiedKFold, RepeatedKFold, LeaveOneOut
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import l1_min_c
 
@@ -39,7 +39,7 @@ logit_en_cv = LogisticRegressionCV(penalty="elasticnet", solver="saga", Cs=np.lo
 logit = LogisticRegression(penalty=None, class_weight="balanced", max_iter=int(1e6))
 linreg = LinearRegression()
 
-preprocessing = Pipeline(
+default_preprocessing = Pipeline(
     steps=[
         ("variance", VarianceThreshold(0.01)),
         ("lif", LowInfoFilter()),
@@ -57,7 +57,8 @@ def single_omic_stabl_cv(
         stability_selection,
         task_type,
         save_path,
-        outer_groups=None
+        outer_groups=None,
+        preprocessing=default_preprocessing
 ):
     """
 
@@ -106,7 +107,14 @@ def single_omic_stabl_cv(
 
     i = 1
     for train, test in outer_splitter.split(X, y, groups=outer_groups):
-        print(f" Iteration {i} over {outer_splitter.get_n_splits()} ".center(80, '*'), "\n")
+        
+        # Jonas additional code in case outer_splitter is LeaveOneOut
+        if isinstance(outer_splitter, LeaveOneOut):
+            print(f" Iteration {i} over {X.shape[0]} ".center(80, '*'), "\n")
+        else:
+            print(f" Iteration {i} over {outer_splitter.get_n_splits()} ".center(80, '*'), "\n")
+        # end additional code
+
         train_idx, test_idx = y.iloc[train].index, y.iloc[test].index
 
         fold_selected_features = dict()
@@ -239,6 +247,15 @@ def single_omic_stabl_cv(
 
         # __Lasso 1SE__
         if task_type == "binary":
+            
+            # Jonas additional code for error : Hyperparameter taking negative values
+            new_best_c_corr = model.C_[0] - model.scores_[True].std() / np.sqrt(inner_splitter.get_n_splits())
+            if new_best_c_corr < 0:
+                best_c_corr = abs(model.C_[0])
+            else:
+                best_c_corr = new_best_c_corr
+            # end of new code
+            
             best_c_corr = model.C_[0] - model.scores_[True].std() / np.sqrt(inner_splitter.get_n_splits())
             model = LogisticRegression(penalty='l1', solver='liblinear', C=best_c_corr, class_weight='balanced',
                                        max_iter=1_000_000)
@@ -277,12 +294,19 @@ def single_omic_stabl_cv(
 
         jaccard_matrix_dict[model] = jaccard_matrix(selected_features_dict[model])
 
+        # Jonas additional code in case outer_splitter is LeaveOneOut
+        if isinstance(outer_splitter, LeaveOneOut):
+            index=[f"Fold {i}" for i in range(X.shape[0])]
+        else:
+            index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits())]
+        # end additional code
+
         formatted_features_dict[model] = pd.DataFrame(
             data={
                 "Fold selected features": selected_features_dict[model],
                 "Fold nb of features": [len(el) for el in selected_features_dict[model]]
             },
-            index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits())]
+            index=index # Jonas'additional code linked to this parameter
         )
         formatted_features_dict[model].to_csv(Path(cv_res_path, f"Selected Features {model}.csv"))
 
@@ -316,8 +340,8 @@ def single_omic_stabl(
         task_type,
         save_path,
         X_test=None,
-        y_test=None
-):
+        y_test=None,
+        preprocessing=default_preprocessing):
     """
 
     Parameters
@@ -467,7 +491,15 @@ def single_omic_stabl(
 
     # __Lasso 1SE__
     if task_type == "binary":
-        best_c_corr = model_lasso.C_[0] - model_lasso.scores_[True].std() / np.sqrt(inner_splitter.get_n_splits())
+        
+        # Jonas additional code for error : Hyperparameter taking negative values
+        new_best_c_corr = model_lasso.C_[0] - model_lasso.scores_[True].std() / np.sqrt(inner_splitter.get_n_splits())
+        if new_best_c_corr < 0:
+            best_c_corr = abs(model_lasso.C_[0])
+        else:
+            best_c_corr = new_best_c_corr
+        # end of new code
+        
         model_lasso1se = LogisticRegression(penalty='l1', solver='liblinear', C=best_c_corr,
                                             class_weight='balanced', max_iter=1_000_000
                                             ).fit(X_train_std, y)

@@ -96,6 +96,13 @@ The "Sample Data" folder contains data for the following use cases:
 * `Tutorial Notebooks.ipynb`: Tutorial on how to use the library
 * `* Benchmarks.ipynb`: Jupyter Notebook rerunning all the benchmarks 
 
+## Modifications to the original GitHub (Greg Bellan Stabl)
+* **josh_multi_omic_pipeline_cv** : a new pipeline using another LASSO instead of a logistic regression for the predictions of the model based on the features selected by STABL in each fold of the cross validation.
+* **outer_splitter = LeaveOneOut** : because of the "print", the only allowed outer_splitter for the pipelines with cross validation were the ones with the method get_n_splits. If the user wants to use LeaveOneOut instead, it is now possible (the error has been fixed).
+* **Hyperparameter C taking negative values** : sometimes when cross validating the LASSO 1SE in the pipelines, the hyperparameter C took negative values causing the pipeline to stop. This issue has been solved.
+* **personalized preprocessing** : in all the pipelines changing the preprocessing was very laborious. We created a new argument in the pipelines using preprocessing so that the user can easily design his own preprocessing and apply it to his or her pipeline.
+* **multi stabl pipelines** : every time we wanted to run a STABL model, we had to rerun all the other models that STABL is systematically compared to, even when we only want to slightly tune some parameters. We created new pipelines allowing the user to run multiple STABL models at once with an additional univariate analysis and folder organization of the results which is more convenient.
+
 ## Cite
 Julien Hedou, Ivana Maric, Grégoire Bellan et al. Stabl: sparse and reliable biomarker discovery in predictive modeling 
 of high-dimensional omic data, 27 February 2023, PREPRINT (Version 1) available at Research Square 
