@@ -111,6 +111,8 @@ def single_omic_stabl_cv(
         # Jonas additional code in case outer_splitter is LeaveOneOut
         if isinstance(outer_splitter, LeaveOneOut):
             print(f" Iteration {i} over {X.shape[0]} ".center(80, '*'), "\n")
+        elif isinstance(outer_groups, (list, tuple, np.ndarray)):
+            print(f" Iteration {i} over {outer_splitter.get_n_splits(groups=outer_groups)} ".center(80, '*'), "\n")
         else:
             print(f" Iteration {i} over {outer_splitter.get_n_splits()} ".center(80, '*'), "\n")
         # end additional code
@@ -297,6 +299,8 @@ def single_omic_stabl_cv(
         # Jonas additional code in case outer_splitter is LeaveOneOut
         if isinstance(outer_splitter, LeaveOneOut):
             index=[f"Fold {i}" for i in range(X.shape[0])]
+        elif isinstance(outer_groups, (list, tuple, np.ndarray)):
+            index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits(groups=outer_groups))]
         else:
             index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits())]
         # end additional code
