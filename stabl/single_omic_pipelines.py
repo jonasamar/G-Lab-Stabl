@@ -251,7 +251,7 @@ def single_omic_stabl_cv(
         if task_type == "binary":
             
             # Jonas additional code for error : Hyperparameter taking negative values
-            new_best_c_corr = model.C_[0] - model.scores_[2].std() / np.sqrt(inner_splitter.get_n_splits())
+            new_best_c_corr = model.C_[0] - model.scores_[True].std() / np.sqrt(inner_splitter.get_n_splits())
             if new_best_c_corr < 0:
                 best_c_corr = abs(model.C_[0])
             else:
@@ -496,7 +496,7 @@ def single_omic_stabl(
     if task_type == "binary":
         
         # Jonas additional code for error : Hyperparameter taking negative values
-        new_best_c_corr = model_lasso.C_[0] - model_lasso.scores_[2].std() / np.sqrt(inner_splitter.get_n_splits())
+        new_best_c_corr = model_lasso.C_[0] - model_lasso.scores_[True].std() / np.sqrt(inner_splitter.get_n_splits())
         if new_best_c_corr < 0:
             best_c_corr = abs(model_lasso.C_[0])
         else:

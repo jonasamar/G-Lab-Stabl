@@ -104,7 +104,6 @@ The "Sample Data" folder contains data for the following use cases:
 * **personalized preprocessing** : in all the pipelines changing the preprocessing was very laborious. We created a new argument in the pipelines using preprocessing so that the user can easily design his own preprocessing and apply it to his or her pipeline.
 * **multi stabl pipelines** : every time we wanted to run a STABL model, we had to rerun all the other models that STABL is systematically compared to, even when we only want to slightly tune some parameters. We created new pipelines allowing the user to run multiple STABL models at once with an additional univariate analysis and folder organization of the results which is more convenient.
 * **remove_low_info_samples** : the function was modified to be able to take DataFrames as input.
-* **model.scores_[True] error** : for the lasso 1se in single_omic pipelines, there was an error due to the value True in the line 254 (model.scores_[True]). True was replaced by 2 (which was an actual key in the dictionary model.scores_).
 
 ## Cite
 Julien Hedou, Ivana Maric, Grégoire Bellan et al. Stabl: sparse and reliable biomarker discovery in predictive modeling 
