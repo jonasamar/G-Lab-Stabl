@@ -105,7 +105,16 @@ def multi_omic_stabl_cv(
 
     i = 1
     for train, test in outer_splitter.split(X_tot, y, groups=outer_groups):
-        print(f" Iteration {i} over {outer_splitter.get_n_splits()} ".center(80, '*'), "\n")
+
+        # Jonas additional code in case outer_splitter is LeaveOneOut
+        if isinstance(outer_splitter, LeaveOneOut):
+            print(f" Iteration {i} over {X.shape[0]} ".center(80, '*'), "\n")
+        elif isinstance(outer_groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
+            print(f" Iteration {i} over {outer_splitter.get_n_splits(groups=outer_groups)} ".center(80, '*'), "\n")
+        else:
+            print(f" Iteration {i} over {outer_splitter.get_n_splits()} ".center(80, '*'), "\n")
+        # end additional code
+
         train_idx, test_idx = y.iloc[train].index, y.iloc[test].index
 
         fold_selected_features = dict()
@@ -478,7 +487,15 @@ def late_fusion_lasso_cv(train_data_dict,
         i = 1
         print(f"Omic {omic_name}")
         for train, test in outer_splitter.split(X_omic, y_omic, groups=groups):
-            print(f"Iteration {i} over {outer_splitter.get_n_splits()}")
+
+            # Jonas additional code in case outer_splitter is LeaveOneOut
+            if isinstance(outer_splitter, LeaveOneOut):
+                print(f" Iteration {i} over {X.shape[0]} ".center(80, '*'), "\n")
+            elif isinstance(outer_groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
+                print(f" Iteration {i} over {outer_splitter.get_n_splits(groups=outer_groups)} ".center(80, '*'), "\n")
+            else:
+                print(f" Iteration {i} over {outer_splitter.get_n_splits()} ".center(80, '*'), "\n")
+            # end additional code
 
             train_idx, test_idx = y_omic.iloc[train].index, y_omic.iloc[test].index
             X_train, X_test = X_omic.loc[train_idx], X_omic.loc[test_idx]
