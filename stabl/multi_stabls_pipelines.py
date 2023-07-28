@@ -302,7 +302,7 @@ def single_omic_multi_stabl_cv(
         # Jonas additional code in case outer_splitter is LeaveOneOut
         if isinstance(outer_splitter, LeaveOneOut):
             index=[f"Fold {i}" for i in range(X.shape[0])]
-        elif isinstance(outer_groups, (list, tuple, np.ndarray)):
+        elif isinstance(outer_groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
             index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits(groups=outer_groups))]
         else:
             index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits())]
