@@ -106,9 +106,9 @@ def multi_omic_stabl_cv(
     i = 1
     for train, test in outer_splitter.split(X_tot, y, groups=outer_groups):
 
-        # Jonas additional code in case outer_splitter is LeaveOneOut
+        # Jonas additional code in case outer_splitter is LeaveOneOut or LeaveOneGroupOut
         if isinstance(outer_splitter, LeaveOneOut):
-            print(f" Iteration {i} over {X.shape[0]} ".center(80, '*'), "\n")
+            print(f" Iteration {i} over {X_tot.shape[0]} ".center(80, '*'), "\n")
         elif isinstance(outer_groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
             print(f" Iteration {i} over {outer_splitter.get_n_splits(groups=outer_groups)} ".center(80, '*'), "\n")
         else:
@@ -259,13 +259,22 @@ def multi_omic_stabl_cv(
     for model in models:
 
         jaccard_matrix_dict[model] = jaccard_matrix(selected_features_dict[model])
+        
+        # Jonas additional code in case outer_splitter is LeaveOneOut or LeaveOneGroupOut
+        if isinstance(outer_splitter, LeaveOneOut):
+            index=[f"Fold {i}" for i in range(X_tot.shape[0])]
+        elif isinstance(outer_groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
+            index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits(groups=outer_groups))]
+        else:
+            index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits())]
+        # end additional code
 
         formatted_features_dict[model] = pd.DataFrame(
             data={
                 "Fold selected features": selected_features_dict[model],
                 "Fold nb of features": [len(el) for el in selected_features_dict[model]]
             },
-            index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits())]
+            index=index # Jonas'additional code linked to this parameter
         )
         formatted_features_dict[model].to_csv(Path(cv_res_path, f"Selected Features {model}.csv"))
 
@@ -488,11 +497,11 @@ def late_fusion_lasso_cv(train_data_dict,
         print(f"Omic {omic_name}")
         for train, test in outer_splitter.split(X_omic, y_omic, groups=groups):
 
-            # Jonas additional code in case outer_splitter is LeaveOneOut
+            # Jonas additional code in case outer_splitter is LeaveOneOut or LeaveOneGroupOut
             if isinstance(outer_splitter, LeaveOneOut):
                 print(f" Iteration {i} over {X.shape[0]} ".center(80, '*'), "\n")
-            elif isinstance(outer_groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
-                print(f" Iteration {i} over {outer_splitter.get_n_splits(groups=outer_groups)} ".center(80, '*'), "\n")
+            elif isinstance(groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
+                print(f" Iteration {i} over {outer_splitter.get_n_splits(groups=groups)} ".center(80, '*'), "\n")
             else:
                 print(f" Iteration {i} over {outer_splitter.get_n_splits()} ".center(80, '*'), "\n")
             # end additional code
@@ -528,7 +537,17 @@ def late_fusion_lasso_cv(train_data_dict,
             i += 1
 
     all_selected_features = []
-    for j in range(outer_splitter.get_n_splits()):
+    
+    # Jonas additional code in case outer_splitter is LeaveOneOut or LeaveOneGroupOut
+    if isinstance(outer_splitter, LeaveOneOut):
+        nfolds = X_omic.shape[0]
+    elif isinstance(groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
+        nfolds = outer_splitter.get_n_splits(groups=groups)
+    else:
+        nfolds = outer_splitter.get_n_splits()
+    # end additional code
+    
+    for j in range(nfolds): # Jonas'additional code linked to this parameter
         fold_selected_features = []
         for model in omics_selected_features.keys():
             fold_selected_features += omics_selected_features[model][j]
@@ -544,12 +563,21 @@ def late_fusion_lasso_cv(train_data_dict,
     saving_path = Path(save_path, "Training CV", "LF Lasso")
     os.makedirs(saving_path, exist_ok=True)
 
+    # Jonas additional code in case outer_splitter is LeaveOneOut or LeaveOneGroupOut
+    if isinstance(outer_splitter, LeaveOneOut):
+        index=[f"Fold {i}" for i in range(X_omic.shape[0])]
+    elif isinstance(groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
+        index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits(groups=groups))]
+    else:
+        index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits())]
+    # end additional code
+        
     all_selected_features = pd.DataFrame(
         data={
             "Fold selected features": all_selected_features,
             "Fold nb of features": [len(el) for el in all_selected_features]
         },
-        index=[f"Fold {i}" for i in range(outer_splitter.get_n_splits())]
+        index=index # Jonas'additional code linked to this parameter
     )
 
     all_selected_features.to_csv(Path(save_path, "Training CV", "Selected Features LF Lasso.csv"))

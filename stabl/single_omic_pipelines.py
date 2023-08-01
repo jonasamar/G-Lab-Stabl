@@ -108,7 +108,7 @@ def single_omic_stabl_cv(
     i = 1
     for train, test in outer_splitter.split(X, y, groups=outer_groups):
         
-        # Jonas additional code in case outer_splitter is LeaveOneOut
+        # Jonas additional code in case outer_splitter is LeaveOneOut or LeaveOneGroupOut
         if isinstance(outer_splitter, LeaveOneOut):
             print(f" Iteration {i} over {X.shape[0]} ".center(80, '*'), "\n")
         elif isinstance(outer_groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
@@ -295,7 +295,7 @@ def single_omic_stabl_cv(
 
         jaccard_matrix_dict[model] = jaccard_matrix(selected_features_dict[model])
 
-        # Jonas additional code in case outer_splitter is LeaveOneOut
+        # Jonas additional code in case outer_splitter is LeaveOneOut or LeaveOneGroupOut
         if isinstance(outer_splitter, LeaveOneOut):
             index=[f"Fold {i}" for i in range(X.shape[0])]
         elif isinstance(outer_groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
