@@ -104,6 +104,7 @@ The "Sample Data" folder contains data for the following use cases:
 * **personalized preprocessing** : in all the pipelines changing the preprocessing was very laborious. We created a new argument in the pipelines using preprocessing so that the user can easily design his own preprocessing and apply it to his or her pipeline.
 * **multi stabl pipelines** : every time we wanted to run a STABL model, we had to rerun all the other models that STABL is systematically compared to, even when we only want to slightly tune some parameters. We created new pipelines allowing the user to run multiple STABL models at once with an additional univariate analysis and folder organization of the results which is more convenient.
 * **remove_low_info_samples** : the function was modified to be able to take DataFrames as input.
+* **Winsorizer** : A new class has been added to the preprocessing to deal with outliers. The class is Winsorizer. It basically replace the outliers by a percentile defined by the user. This step of preprocessing can be added after the standardization but requires a modification when calling the preprocessing pipeline : instead of writing preprocessing.get_feature_names_out() we should use preprocessing[:-1].get_feature_names_out() (since get_feature_names_out is a method of the first functions in the preprocessing and not of the Winsorizer).
 
 ## Cite
 Julien Hedou, Ivana Maric, Grégoire Bellan et al. Stabl: sparse and reliable biomarker discovery in predictive modeling 
