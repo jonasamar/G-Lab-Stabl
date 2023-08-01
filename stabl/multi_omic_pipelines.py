@@ -133,7 +133,7 @@ def multi_omic_stabl_cv(
             X_tmp_std = pd.DataFrame(
                 data=preprocessing.fit_transform(X_tmp),
                 index=X_tmp.index,
-                columns=preprocessing.get_feature_names_out()
+                columns=preprocessing["std"].get_feature_names_out()
             )
 
             # __STABL__
@@ -221,13 +221,13 @@ def multi_omic_stabl_cv(
         X_test = X_tot.loc[test_idx]
         X_train = pd.DataFrame(
             data=preprocessing.fit_transform(X_train),
-            columns=preprocessing.get_feature_names_out(),
+            columns=preprocessing["std"].get_feature_names_out(),
             index=X_train.index
         )
 
         X_test = pd.DataFrame(
             data=preprocessing.transform(X_test),
-            columns=preprocessing.get_feature_names_out(),
+            columns=preprocessing["std"].get_feature_names_out(),
             index=X_test.index
         )
 
@@ -351,7 +351,7 @@ def multi_omic_stabl(
         X_omic_std = pd.DataFrame(
             data=preprocessing.fit_transform(X_omic),
             index=X_omic.index,
-            columns=preprocessing.get_feature_names_out()
+            columns=preprocessing["std"].get_feature_names_out()
         )
         y_omic = y.loc[X_omic_std.index]
 
@@ -513,13 +513,13 @@ def late_fusion_lasso_cv(train_data_dict,
             X_train_std = pd.DataFrame(
                 data=preprocessing.fit_transform(X_train),
                 index=X_train.index,
-                columns=preprocessing.get_feature_names_out()
+                columns=preprocessing["std"].get_feature_names_out()
             )
 
             X_test_std = pd.DataFrame(
                 data=preprocessing.transform(X_test),
                 index=X_test.index,
-                columns=preprocessing.get_feature_names_out()
+                columns=preprocessing["std"].get_feature_names_out()
             )
 
             if task_type == "binary":
@@ -715,7 +715,7 @@ def multi_omic_stabl_cv_josh(
             X_tmp_std = pd.DataFrame(
                 data=preprocessing.fit_transform(X_tmp),
                 index=X_tmp.index,
-                columns=preprocessing.get_feature_names_out()
+                columns=preprocessing["std"].get_feature_names_out()
             )
 
 
@@ -876,13 +876,13 @@ def multi_omic_stabl_cv_josh(
         X_test = X_tot.loc[test_idx]
         X_train = pd.DataFrame(
             data=preprocessing.fit_transform(X_train),
-            columns=preprocessing.get_feature_names_out(),
+            columns=preprocessing["std"].get_feature_names_out(),
             index=X_train.index
         )
 
         X_test = pd.DataFrame(
             data=preprocessing.transform(X_test),
-            columns=preprocessing.get_feature_names_out(),
+            columns=preprocessing["std"].get_feature_names_out(),
             index=X_test.index
         )
 
