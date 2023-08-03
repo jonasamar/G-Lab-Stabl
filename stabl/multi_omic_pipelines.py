@@ -98,6 +98,11 @@ def multi_omic_stabl_cv(
     X_tot = pd.concat(data_dict.values(), axis="columns")
     predictions_dict = dict()
     selected_features_dict = dict()
+    
+    # Jonas : getting the step of preprocessing where X is standardized
+    # Essential to call get_feature_names_out() when user wants to add preprocessing steps
+    std_step_index = [index for index, (name, _) in enumerate(preprocessing.steps) if name == 'std'][0]
+    # end additional code
 
     for model in models:
         predictions_dict[model] = pd.DataFrame(data=None, index=y.index)
@@ -133,7 +138,7 @@ def multi_omic_stabl_cv(
             X_tmp_std = pd.DataFrame(
                 data=preprocessing.fit_transform(X_tmp),
                 index=X_tmp.index,
-                columns=preprocessing["std"].get_feature_names_out()
+                columns=preprocessing[:std_step_index+1].get_feature_names_out()
             )
 
             # __STABL__
@@ -221,13 +226,13 @@ def multi_omic_stabl_cv(
         X_test = X_tot.loc[test_idx]
         X_train = pd.DataFrame(
             data=preprocessing.fit_transform(X_train),
-            columns=preprocessing["std"].get_feature_names_out(),
+            columns=preprocessing[:std_step_index+1].get_feature_names_out(),
             index=X_train.index
         )
 
         X_test = pd.DataFrame(
             data=preprocessing.transform(X_test),
-            columns=preprocessing["std"].get_feature_names_out(),
+            columns=preprocessing[:std_step_index+1].get_feature_names_out(),
             index=X_test.index
         )
 
@@ -341,6 +346,11 @@ def multi_omic_stabl(
 
     # Initializing the df containing the data of all omics
     X_tot = pd.concat(data_dict.values(), axis="columns")
+    
+    # Jonas : getting the step of preprocessing where X is standardized
+    # Essential to call get_feature_names_out() when user wants to add preprocessing steps
+    std_step_index = [index for index, (name, _) in enumerate(preprocessing.steps) if name == 'std'][0]
+    # end additional code
 
     predictions_dict = dict()
     selected_features_dict = dict()
@@ -351,7 +361,7 @@ def multi_omic_stabl(
         X_omic_std = pd.DataFrame(
             data=preprocessing.fit_transform(X_omic),
             index=X_omic.index,
-            columns=preprocessing["std"].get_feature_names_out()
+            columns=preprocessing[:std_step_index+1].get_feature_names_out()
         )
         y_omic = y.loc[X_omic_std.index]
 
@@ -490,6 +500,11 @@ def late_fusion_lasso_cv(train_data_dict,
 
     predictions_dict = {model: pd.DataFrame(data=None, index=y.index) for model in train_data_dict.keys()}
     omics_selected_features = {model: [] for model in train_data_dict.keys()}
+    
+    # Jonas : getting the step of preprocessing where X is standardized
+    # Essential to call get_feature_names_out() when user wants to add preprocessing steps
+    std_step_index = [index for index, (name, _) in enumerate(preprocessing.steps) if name == 'std'][0]
+    # end additional code
 
     for omic_name, X_omic in train_data_dict.items():
         y_omic = y.loc[X_omic.index]
@@ -513,13 +528,13 @@ def late_fusion_lasso_cv(train_data_dict,
             X_train_std = pd.DataFrame(
                 data=preprocessing.fit_transform(X_train),
                 index=X_train.index,
-                columns=preprocessing["std"].get_feature_names_out()
+                columns=preprocessing[:std_step_index+1].get_feature_names_out()
             )
 
             X_test_std = pd.DataFrame(
                 data=preprocessing.transform(X_test),
                 index=X_test.index,
-                columns=preprocessing["std"].get_feature_names_out()
+                columns=preprocessing[:std_step_index+1].get_feature_names_out()
             )
 
             if task_type == "binary":
@@ -715,7 +730,7 @@ def multi_omic_stabl_cv_josh(
             X_tmp_std = pd.DataFrame(
                 data=preprocessing.fit_transform(X_tmp),
                 index=X_tmp.index,
-                columns=preprocessing["std"].get_feature_names_out()
+                columns=preprocessing.get_feature_names_out()
             )
 
 
@@ -876,13 +891,13 @@ def multi_omic_stabl_cv_josh(
         X_test = X_tot.loc[test_idx]
         X_train = pd.DataFrame(
             data=preprocessing.fit_transform(X_train),
-            columns=preprocessing["std"].get_feature_names_out(),
+            columns=preprocessing.get_feature_names_out(),
             index=X_train.index
         )
 
         X_test = pd.DataFrame(
             data=preprocessing.transform(X_test),
-            columns=preprocessing["std"].get_feature_names_out(),
+            columns=preprocessing.get_feature_names_out(),
             index=X_test.index
         )
 

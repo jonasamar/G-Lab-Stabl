@@ -100,6 +100,11 @@ def single_omic_stabl_cv(
     # Initializing the df containing the data of all omics
     predictions_dict = dict()
     selected_features_dict = dict()
+    
+    # Jonas : getting the step of preprocessing where X is standardized
+    # Essential to call get_feature_names_out() when user wants to add preprocessing steps
+    std_step_index = [index for index, (name, _) in enumerate(preprocessing.steps) if name == 'std'][0]
+    # end additional code
 
     for model in models:
         predictions_dict[model] = pd.DataFrame(data=None, index=y.index)
@@ -134,7 +139,7 @@ def single_omic_stabl_cv(
         X_tmp_std = pd.DataFrame(
             data=preprocessing.fit_transform(X_tmp),
             index=X_tmp.index,
-            columns=preprocessing["std"].get_feature_names_out()
+            columns=preprocessing[:std_step_index+1].get_feature_names_out()
         )
 
         # __STABL__
@@ -224,13 +229,13 @@ def single_omic_stabl_cv(
         X_test = X.loc[test_idx]
         X_train = pd.DataFrame(
             data=preprocessing.fit_transform(X_train),
-            columns=preprocessing["std"].get_feature_names_out(),
+            columns=preprocessing[:std_step_index+1].get_feature_names_out(),
             index=X_train.index
         )
 
         X_test = pd.DataFrame(
             data=preprocessing.transform(X_test),
-            columns=preprocessing["std"].get_feature_names_out(),
+            columns=preprocessing[:std_step_index+1].get_feature_names_out(),
             index=X_test.index
         )
 
@@ -372,6 +377,11 @@ def single_omic_stabl(
 
     os.makedirs(Path(save_path, "Training-Validation"), exist_ok=True)
     os.makedirs(Path(save_path, "Summary"), exist_ok=True)
+    
+    # Jonas : getting the step of preprocessing where X is standardized
+    # Essential to call get_feature_names_out() when user wants to add preprocessing steps
+    std_step_index = [index for index, (name, _) in enumerate(preprocessing.steps) if name == 'std'][0]
+    # end additional code
 
     predictions_dict = dict()
     selected_features_dict = dict()
@@ -381,7 +391,7 @@ def single_omic_stabl(
     X_omic_std = pd.DataFrame(
         data=preprocessing.fit_transform(X),
         index=X.index,
-        columns=preprocessing["std"].get_feature_names_out()
+        columns=preprocessing[:std_step_index+1].get_feature_names_out()
     )
     y_omic = y.loc[X_omic_std.index]
 
@@ -473,7 +483,7 @@ def single_omic_stabl(
     X_train_std = pd.DataFrame(
         data=preprocessing.fit_transform(X),
         index=X.index,
-        columns=preprocessing["std"].get_feature_names_out()
+        columns=preprocessing[:std_step_index+1].get_feature_names_out()
     )
 
     if task_type == "binary":
@@ -536,7 +546,7 @@ def single_omic_stabl(
         X_test_std = pd.DataFrame(
             data=preprocessing.transform(X_test),
             index=X_test.index,
-            columns=preprocessing["std"].get_feature_names_out()
+            columns=preprocessing[:std_step_index+1].get_feature_names_out()
         )
 
         predictions_dict["Lasso"] = pd.Series(

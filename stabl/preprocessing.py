@@ -96,8 +96,8 @@ class Winsorizer(BaseEstimator, TransformerMixin):
         self.winsor_low_ = {}
         self.winsor_high_ = {}
         for col in X_data.columns:
-            winsor_low = np.nanpercentile(X_data[col], self.winsor_percentile)
-            winsor_high = np.nanpercentile(X_data[col], 100 - self.winsor_percentile)
+            winsor_low = np.percentile(X_data[col], self.winsor_percentile)
+            winsor_high = np.percentile(X_data[col], 100 - self.winsor_percentile)
             self.winsor_low_[col] = winsor_low
             self.winsor_high_[col] = winsor_high
 
