@@ -398,43 +398,48 @@ def multi_omic_stabl(
     )
 
     for model in ["STABL", "SS 03", "SS 05", "SS 08"]:
-        X_train = X_tot[selected_features_dict[model]]
-        X_train_std = pd.DataFrame(
-            data=final_prepro.fit_transform(X_train),
-            index=X_tot.index,
-            columns=final_prepro.get_feature_names_out()
-        )
-
-        if task_type == "binary":
-            base_linear_model = logit
-
-        else:
-            base_linear_model = linreg
-
-        base_linear_model.fit(X_train_std, y)
-        base_linear_model_coef = pd.DataFrame(
-            {"Feature": selected_features_dict[model],
-             "Associated weight": base_linear_model.coef_.flatten()
-             }
-        ).set_index("Feature")
-        base_linear_model_coef.to_csv(Path(save_path, "Training-Validation", f"{model} coefficients.csv"))
-
-        if X_test is not None:
-            X_test_std = pd.DataFrame(
-                data=final_prepro.transform(X_test[selected_features_dict[model]]),
-                index=X_test.index,
+        
+        # Jonas addtional code : when 0 features are selected an error occures => skip step when 0 features selected
+        if len(selected_features_dict[model]) > 0:
+        # End additional code
+        
+            X_train = X_tot[selected_features_dict[model]]
+            X_train_std = pd.DataFrame(
+                data=final_prepro.fit_transform(X_train),
+                index=X_tot.index,
                 columns=final_prepro.get_feature_names_out()
             )
-            if task_type == "binary":
-                model_preds = base_linear_model.predict_proba(X_test_std)[:, 1]
-            else:
-                model_preds = base_linear_model.predict(X_test_std)
 
-            predictions_dict[model] = pd.Series(
-                model_preds,
-                index=y_test.index,
-                name=f"{model} predictions"
-            )
+            if task_type == "binary":
+                base_linear_model = logit
+
+            else:
+                base_linear_model = linreg
+
+            base_linear_model.fit(X_train_std, y)
+            base_linear_model_coef = pd.DataFrame(
+                {"Feature": selected_features_dict[model],
+                "Associated weight": base_linear_model.coef_.flatten()
+                }
+            ).set_index("Feature")
+            base_linear_model_coef.to_csv(Path(save_path, "Training-Validation", f"{model} coefficients.csv"))
+
+            if X_test is not None:
+                X_test_std = pd.DataFrame(
+                    data=final_prepro.transform(X_test[selected_features_dict[model]]),
+                    index=X_test.index,
+                    columns=final_prepro.get_feature_names_out()
+                )
+                if task_type == "binary":
+                    model_preds = base_linear_model.predict_proba(X_test_std)[:, 1]
+                else:
+                    model_preds = base_linear_model.predict(X_test_std)
+
+                predictions_dict[model] = pd.Series(
+                    model_preds,
+                    index=y_test.index,
+                    name=f"{model} predictions"
+                )
 
     # __EF Lasso__
     X_train_std = pd.DataFrame(
