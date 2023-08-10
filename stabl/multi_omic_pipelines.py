@@ -519,7 +519,7 @@ def late_fusion_lasso_cv(train_data_dict,
 
             # Jonas additional code in case outer_splitter is LeaveOneOut or LeaveOneGroupOut
             if isinstance(outer_splitter, LeaveOneOut):
-                print(f" Iteration {i} over {X.shape[0]} ".center(80, '*'), "\n")
+                print(f" Iteration {i} over {X_omic.shape[0]} ".center(80, '*'), "\n")
             elif isinstance(groups, (list, tuple, np.ndarray, pd.Series, pd.DataFrame)):
                 print(f" Iteration {i} over {outer_splitter.get_n_splits(groups=groups)} ".center(80, '*'), "\n")
             else:
